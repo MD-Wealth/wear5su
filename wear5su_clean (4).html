@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>5SU — Gosu Apparel</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;600;700&family=Share+Tech+Mono&family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#000000;
+  --bg2:#050a10;
+  --bg3:#0a1018;
+  --cyan:#00f5ff;
+  --cyan2:#00bcd4;
+  --purple:#b400ff;
+  --red:#ff0040;
+  --gold:#ffd700;
+  --txt:#c8d8e8;
+  --mu:#4a6080;
+  --glow-c:rgba(0,245,255,.15);
+  --glow-p:rgba(180,0,255,.12);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--txt);font-family:'Rajdhani',sans-serif;font-size:16px;overflow-x:hidden;}
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--cyan2);}
+
+/* ── SCANLINE OVERLAY ── */
+body::after{
+  content:'';pointer-events:none;
+  position:fixed;inset:0;z-index:9999;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px);
+}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:500;
+  height:56px;
+  display:flex;align-items:center;
+  padding:0 2rem;
+  background:rgba(0,0,0,.95);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(0,245,255,.2);
+  gap:2rem;
+}
+.nav-logo{
+  display:flex;align-items:center;gap:.75rem;
+  cursor:pointer;flex-shrink:0;text-decoration:none;
+}
+.nav-logo img{height:36px;width:auto;filter:brightness(1.2);}
+.nav-brand{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:1.6rem;
+  letter-spacing:.3em;
+  color:var(--cyan);
+  text-shadow:0 0 20px rgba(0,245,255,.5);
+  line-height:1;
+}
+.nav-brand small{
+  display:block;
+  font-family:'Share Tech Mono',monospace;
+  font-size:.45rem;
+  letter-spacing:.5em;
+  color:var(--mu);
+  font-weight:400;
+  margin-top:2px;
+}
+.nav-links{flex:1;display:flex;align-items:center;gap:.25rem;}
+.nav-links button{
+  background:none;border:none;
+  cursor:pointer;
+  padding:.3rem .9rem;
+  font-family:'Rajdhani',sans-serif;font-size:.8rem;
+  font-weight:600;letter-spacing:.2em;
+  color:var(--mu);text-transform:uppercase;
+  transition:color .2s;
+  position:relative;
+}
+.nav-links button::after{
+  content:'';position:absolute;bottom:-1px;left:0;right:0;
+  height:1px;background:var(--cyan);
+  transform:scaleX(0);transition:transform .2s;
+}
+.nav-links button:hover,.nav-links button.active{color:var(--cyan);}
+.nav-links button:hover::after,.nav-links button.active::after{transform:scaleX(1);}
+.nav-right{display:flex;align-items:center;gap:1rem;flex-shrink:0;}
+.cart-btn{
+  display:flex;align-items:center;gap:.5rem;
+  background:none;border:1px solid rgba(0,245,255,.3);
+  cursor:pointer;padding:.4rem 1rem;
+  font-family:'Share Tech Mono',monospace;font-size:.75rem;
+  color:var(--cyan);
+  transition:background .2s,border-color .2s;
+}
+.cart-btn:hover{background:rgba(0,245,255,.08);border-color:var(--cyan);}
+.cart-count{
+  background:var(--cyan);color:var(--bg);
+  border-radius:50%;width:18px;height:18px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.6rem;font-weight:700;
+}
+
+/* ── PAGES ── */
+.page{display:none;min-height:100vh;padding-top:56px;}
+.page.active{display:block;}
+
+/* ── HERO ── */
+.hero{
+  position:relative;
+  height:100vh;
+  display:flex;align-items:center;
+  overflow:hidden;
+}
+.hero-grid{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(0,245,255,.06) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,245,255,.06) 1px,transparent 1px);
+  background-size:60px 60px;
+  animation:grid-move 20s linear infinite;
+}
+@keyframes grid-move{from{transform:translateY(0)}to{transform:translateY(60px)}}
+.hero-glow{
+  position:absolute;
+  width:600px;height:600px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(0,245,255,.08) 0%,transparent 70%);
+  top:50%;left:60%;
+  transform:translate(-50%,-50%);
+  animation:pulse 4s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.6}50%{transform:translate(-50%,-50%) scale(1.1);opacity:1}}
+.hero-purple{
+  position:absolute;
+  width:400px;height:400px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(180,0,255,.08) 0%,transparent 70%);
+  bottom:10%;right:5%;
+}
+.hero-content{
+  position:relative;z-index:1;
+  padding:0 4rem;
+  max-width:800px;
+}
+.hero-tag{
+  font-family:'Share Tech Mono',monospace;
+  font-size:.75rem;
+  color:var(--cyan);
+  letter-spacing:.4em;
+  margin-bottom:1.5rem;
+  display:flex;align-items:center;gap:.75rem;
+}
+.hero-tag::before{content:'//';opacity:.5;}
+.hero-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(4rem,12vw,9rem);
+  line-height:.9;
+  color:#fff;
+  text-shadow:0 0 40px rgba(0,245,255,.3);
+  margin-bottom:.5rem;
+}
+.hero-title .accent{
+  color:var(--cyan);
+  text-shadow:0 0 40px rgba(0,245,255,.8),0 0 80px rgba(0,245,255,.4);
+}
+.hero-korean{
+  font-family:'Noto Sans KR',sans-serif;
+  font-size:1.2rem;
+  color:rgba(0,245,255,.5);
+  letter-spacing:.3em;
+  margin-bottom:1.5rem;
+}
+.hero-desc{
+  font-size:1rem;
+  color:var(--txt);
+  opacity:.7;
+  line-height:1.7;
+  max-width:480px;
+  margin-bottom:2.5rem;
+}
+.hero-ctas{display:flex;gap:1rem;flex-wrap:wrap;}
+.btn-primary{
+  background:var(--cyan);color:var(--bg);
+  border:none;
+  padding:.8rem 2.5rem;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:1.1rem;letter-spacing:.25em;
+  cursor:pointer;
+  clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px));
+  transition:transform .2s,box-shadow .2s;
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,245,255,.4);}
+.btn-secondary{
+  background:transparent;color:var(--cyan);
+  border:1px solid rgba(0,245,255,.4);
+  padding:.8rem 2.5rem;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:1.1rem;letter-spacing:.25em;
+  cursor:pointer;
+  clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px));
+  transition:background .2s,box-shadow .2s;
+}
+.btn-secondary:hover{background:rgba(0,245,255,.08);box-shadow:0 0 20px rgba(0,245,255,.2);}
+
+/* Hero GIF */
+.hero-gif{
+  position:absolute;right:0;top:0;bottom:0;
+  width:45%;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+}
+.hero-gif img{
+  width:100%;height:100%;
+  object-fit:cover;
+  opacity:.6;
+  
+  filter:hue-rotate(180deg) saturate(2) brightness(1.2);
+}
+.hero-gif::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(to right,var(--bg) 0%,transparent 40%);
+  z-index:1;
+}
+
+/* ── GOSU STATEMENT ── */
+.gosu-bar{
+  background:linear-gradient(90deg,var(--bg) 0%,rgba(0,245,255,.05) 50%,var(--bg) 100%);
+  border-top:1px solid rgba(0,245,255,.15);
+  border-bottom:1px solid rgba(0,245,255,.15);
+  padding:1.5rem 0;
+  overflow:hidden;
+  white-space:nowrap;
+}
+.gosu-ticker{
+  display:inline-block;
+  animation:ticker 30s linear infinite;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:1.1rem;
+  letter-spacing:.3em;
+  color:rgba(0,245,255,.3);
+}
+@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ── SHOP SECTION ── */
+.shop-section{max-width:1400px;margin:0 auto;padding:4rem 2rem 6rem;}
+.shop-header{
+  display:flex;align-items:flex-end;justify-content:space-between;
+  margin-bottom:2.5rem;
+  flex-wrap:wrap;gap:1.5rem;
+}
+.shop-title-block .pre{
+  font-family:'Share Tech Mono',monospace;
+  font-size:.7rem;color:var(--cyan);
+  letter-spacing:.4em;margin-bottom:.4rem;
+}
+.shop-title-block h2{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:3rem;color:#fff;letter-spacing:.05em;
+  line-height:1;
+}
+.filter-row{display:flex;gap:.5rem;flex-wrap:wrap;}
+.filter-btn{
+  background:none;
+  border:1px solid rgba(0,245,255,.2);
+  color:var(--mu);
+  padding:.35rem 1rem;
+  font-family:'Rajdhani',sans-serif;
+  font-size:.75rem;font-weight:600;
+  letter-spacing:.2em;text-transform:uppercase;
+  cursor:pointer;
+  transition:all .2s;
+}
+.filter-btn:hover,.filter-btn.active{
+  border-color:var(--cyan);
+  color:var(--cyan);
+  background:rgba(0,245,255,.07);
+}
+
+/* ── PRODUCT GRID ── */
+.product-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:1px;
+  background:rgba(0,245,255,.1);
+  border:1px solid rgba(0,245,255,.1);
+}
+
+/* ── PRODUCT CARD ── */
+.product-card{
+  background:var(--bg2);
+  cursor:pointer;
+  position:relative;
+  overflow:hidden;
+  transition:background .2s;
+  display:flex;flex-direction:column;
+}
+.product-card:hover{background:var(--bg3);}
+.product-card::before{
+  content:'';
+  position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(0,245,255,.04) 0%,transparent 60%);
+  opacity:0;transition:opacity .3s;
+  pointer-events:none;
+}
+.product-card:hover::before{opacity:1;}
+.product-img{
+  position:relative;
+  aspect-ratio:1/1;
+  overflow:hidden;
+  background:#000;
+}
+.product-img img{
+  width:100%;height:100%;
+  object-fit:contain;
+  padding:1rem;
+  transition:transform .4s;
+  filter:brightness(.95);
+}
+.product-card:hover .product-img img{transform:scale(1.04);}
+.product-badge{
+  position:absolute;top:.75rem;left:.75rem;
+  font-family:'Share Tech Mono',monospace;
+  font-size:.55rem;letter-spacing:.2em;
+  padding:.25rem .6rem;
+  text-transform:uppercase;
+}
+.badge-tkd{background:rgba(255,0,64,.15);color:var(--red);border:1px solid rgba(255,0,64,.3);}
+.badge-anime{background:rgba(180,0,255,.15);color:var(--purple);border:1px solid rgba(180,0,255,.3);}
+.badge-gaming{background:rgba(0,245,255,.12);color:var(--cyan);border:1px solid rgba(0,245,255,.25);}
+.badge-collab{background:rgba(255,215,0,.1);color:var(--gold);border:1px solid rgba(255,215,0,.25);}
+.product-overlay{
+  position:absolute;bottom:0;left:0;right:0;
+  padding:.6rem .75rem;
+  background:linear-gradient(to top,rgba(0,0,0,.8),transparent);
+  transform:translateY(100%);
+  transition:transform .3s;
+  display:flex;justify-content:flex-end;
+}
+.product-card:hover .product-overlay{transform:translateY(0);}
+.quick-view{
+  font-family:'Share Tech Mono',monospace;
+  font-size:.6rem;letter-spacing:.2em;
+  color:var(--cyan);text-transform:uppercase;
+  background:rgba(0,245,255,.1);
+  border:1px solid rgba(0,245,255,.3);
+  padding:.3rem .8rem;
+  cursor:pointer;
+}
+.product-info{
+  padding:1.2rem 1.2rem .8rem;
+  display:flex;flex-direction:column;gap:.4rem;
+  flex:1;
+}
+.product-name{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:1.15rem;letter-spacing:.08em;
+  color:#fff;line-height:1.1;
+}
+.product-price{
+  font-family:'Share Tech Mono',monospace;
+  font-size:.85rem;
+  color:var(--cyan);
+  display:flex;align-items:center;gap:.5rem;
+}
+.product-price::before{content:'CHF';font-size:.6rem;color:var(--mu);}
+.product-footer{
+  padding:.75rem 1.2rem 1rem;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.product-footer .tag{
+  font-family:'Share Tech Mono',monospace;
+  font-size:.55rem;letter-spacing:.15em;
+  color:var(--mu);text-transform:uppercase;
+}
+.add-btn{
+  font-family:'Rajdhani',sans-serif;font-weight:700;
+  font-size:.7rem;letter-spacing:.2em;
+  color:var(--bg);background:var(--cyan);
+  border:none;padding:.35rem .9rem;
+  cursor:pointer;
+  clip-path:polygon(0 0,calc(100% - 6px) 0,100% 6px,100% 100%,6px 100%,0 calc(100% - 6px));
+  transition:opacity .2s,transform .2s;
+  text-transform:uppercase;
+}
+.add-btn:hover{opacity:.85;transform:translateY(-1px);}
+
+/* ── MODAL ── */
+.modal-backdrop{
+  display:none;
+  position:fixed;inset:0;z-index:800;
+  background:rgba(0,0,0,.85);
+  backdrop-filter:blur(8px);
+}
+.modal-backdrop.open{display:flex;align-items:center;justify-content:center;padding:1.5rem;}
+.modal{
+  background:var(--bg2);
+  border:1px solid rgba(0,245,255,.2);
+  max-width:860px;width:100%;
+  max-height:90vh;overflow-y:auto;
+  position:relative;
+  display:grid;grid-template-columns:1fr 1fr;
+}
+.modal::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--cyan),transparent);
+}
+.modal-img{
+  background:#000;
+  display:flex;align-items:center;justify-content:center;
+  padding:2rem;min-height:400px;
+}
+.modal-img img{width:100%;max-height:400px;object-fit:contain;}
+.modal-body{padding:2.5rem 2rem;display:flex;flex-direction:column;gap:1rem;}
+.modal-close{
+  position:absolute;top:1rem;right:1rem;
+  background:none;border:none;
+  cursor:pointer;
+  font-family:'Share Tech Mono',monospace;
+  font-size:.8rem;color:var(--mu);
+  transition:color .2s;
+  z-index:1;
+}
+.modal-close:hover{color:var(--red);}
+.modal-tag{
+  font-family:'Share Tech Mono',monospace;
+  font-size:.65rem;letter-spacing:.35em;
+  color:var(--cyan);text-transform:uppercase;
+}
+.modal-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:2.5rem;letter-spacing:.06em;
+  color:#fff;line-height:1;
+}
+.modal-price{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:2rem;
+  color:var(--cyan);
+  display:flex;align-items:baseline;gap:.5rem;
+}
+.modal-price small{font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--mu);}
+.modal-desc{
+  font-size:.9rem;color:var(--txt);opacity:.7;
+  line-height:1.7;border-top:1px solid rgba(0,245,255,.1);
+  padding-top:1rem;
+}
+.size-select{
+  display:flex;flex-direction:column;gap:.5rem;
+}
+.size-select label{
+  font-family:'Share Tech Mono',monospace;
+  font-size:.6rem;letter-spacing:.3em;color:var(--mu);text-transform:uppercase;
+}
+.size-select select{
+  background:var(--bg3);border:1px solid rgba(0,245,255,.25);
+  color:var(--txt);padding:.6rem 1rem;
+  font-family:'Rajdhani',sans-serif;font-size:.9rem;
+  outline:none;cursor:pointer;
+  appearance:none;
+}
+.modal-actions{display:flex;gap:.75rem;flex-direction:column;}
+.btn-smash{
+  background:var(--cyan);color:var(--bg);
+  border:none;padding:1rem;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:1.3rem;letter-spacing:.3em;
+  cursor:pointer;
+  clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px));
+  transition:opacity .2s,box-shadow .2s;
+}
+.btn-smash:hover{opacity:.9;box-shadow:0 0 30px rgba(0,245,255,.4);}
+.modal-note{
+  font-family:'Share Tech Mono',monospace;
+  font-size:.58rem;letter-spacing:.15em;
+  color:var(--mu);
+  line-height:1.6;
+  border-top:1px solid rgba(0,245,255,.08);
+  padding-top:.75rem;
+}
+
+/* ── ABOUT SECTION ── */
+.about-section{
+  position:relative;
+  padding:6rem 2rem;
+  max-width:1100px;margin:0 auto;
+  display:grid;grid-template-columns:1fr 1fr;gap:4rem;
+  align-items:center;
+}
+.about-label{
+  font-family:'Share Tech Mono',monospace;
+  font-size:.65rem;letter-spacing:.4em;color:var(--cyan);
+  margin-bottom:1rem;
+}
+.about-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:3.5rem;color:#fff;
+  line-height:1;margin-bottom:1.5rem;
+}
+.about-title .k{color:var(--cyan);}
+.about-text{
+  font-size:.95rem;color:var(--txt);opacity:.7;
+  line-height:1.9;
+}
+.about-text p{margin-bottom:1rem;}
+.about-terminal{
+  background:var(--bg2);
+  border:1px solid rgba(0,245,255,.2);
+  padding:2rem;
+  font-family:'Share Tech Mono',monospace;
+  font-size:.8rem;
+  line-height:2;
+  position:relative;
+}
+.about-terminal::before{
+  content:'GOSU_SYSTEM v2.0 // 5SU APPAREL';
+  display:block;
+  font-size:.6rem;
+  color:var(--cyan);
+  letter-spacing:.2em;
+  border-bottom:1px solid rgba(0,245,255,.15);
+  padding-bottom:.75rem;
+  margin-bottom:1rem;
+}
+.terminal-line{display:flex;gap:1rem;}
+.t-key{color:rgba(0,245,255,.5);flex-shrink:0;}
+.t-val{color:var(--txt);}
+.t-val.c{color:var(--cyan);}
+.t-val.p{color:var(--purple);}
+.t-val.r{color:var(--red);}
+.t-cursor{
+  display:inline-block;
+  width:8px;height:14px;
+  background:var(--cyan);
+  animation:blink .8s step-end infinite;
+  vertical-align:middle;
+  margin-left:4px;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* ── CUSTOM ORDER ── */
+.custom-section{
+  background:linear-gradient(135deg,var(--bg2) 0%,rgba(0,245,255,.03) 100%);
+  border-top:1px solid rgba(0,245,255,.1);
+  border-bottom:1px solid rgba(0,245,255,.1);
+  padding:5rem 2rem;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+}
+.custom-section::before{
+  content:'';position:absolute;
+  top:50%;left:50%;transform:translate(-50%,-50%);
+  width:800px;height:400px;
+  background:radial-gradient(ellipse,rgba(180,0,255,.06) 0%,transparent 70%);
+}
+.custom-section .label{
+  font-family:'Share Tech Mono',monospace;
+  font-size:.7rem;letter-spacing:.4em;color:var(--purple);margin-bottom:1rem;
+}
+.custom-section h2{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(2.5rem,6vw,5rem);color:#fff;
+  line-height:.95;margin-bottom:1.5rem;
+  position:relative;
+}
+.custom-section p{
+  color:var(--txt);opacity:.65;
+  font-size:1rem;line-height:1.8;
+  max-width:560px;margin:0 auto 2.5rem;
+  position:relative;
+}
+
+/* ── FOOTER ── */
+footer{
+  background:var(--bg2);
+  border-top:1px solid rgba(0,245,255,.1);
+  padding:3rem 2rem;
+  display:grid;grid-template-columns:1fr 1fr 1fr;
+  gap:2rem;max-width:1200px;margin:0 auto;
+}
+.foot-brand .name{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:2rem;color:var(--cyan);
+  letter-spacing:.3em;
+  text-shadow:0 0 20px rgba(0,245,255,.4);
+}
+.foot-brand p{font-size:.8rem;color:var(--mu);line-height:1.8;margin-top:.5rem;}
+.foot-col h4{
+  font-family:'Share Tech Mono',monospace;
+  font-size:.6rem;letter-spacing:.4em;color:var(--cyan);
+  text-transform:uppercase;margin-bottom:1rem;
+}
+.foot-col p,.foot-col a{
+  font-size:.82rem;color:var(--mu);line-height:2;
+  display:block;text-decoration:none;transition:color .2s;
+}
+.foot-col a:hover{color:var(--cyan);}
+.foot-bottom{
+  max-width:1200px;margin:0 auto;
+  border-top:1px solid rgba(0,245,255,.08);
+  padding:1.2rem 2rem;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.foot-bottom p{
+  font-family:'Share Tech Mono',monospace;
+  font-size:.58rem;letter-spacing:.3em;color:var(--mu);
+}
+
+/* ── CART DRAWER ── */
+.cart-drawer{
+  position:fixed;top:0;right:-400px;bottom:0;
+  width:380px;z-index:600;
+  background:var(--bg2);
+  border-left:1px solid rgba(0,245,255,.2);
+  transition:right .3s;
+  display:flex;flex-direction:column;
+  padding-top:56px;
+}
+.cart-drawer.open{right:0;}
+.cart-drawer-header{
+  padding:1.5rem;
+  border-bottom:1px solid rgba(0,245,255,.1);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.cart-drawer-header h3{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:1.5rem;letter-spacing:.15em;color:var(--cyan);
+}
+.cart-items{flex:1;overflow-y:auto;padding:1rem;}
+.cart-empty{
+  display:flex;align-items:center;justify-content:center;
+  height:100%;
+  font-family:'Share Tech Mono',monospace;
+  font-size:.7rem;letter-spacing:.2em;color:var(--mu);
+  flex-direction:column;gap:1rem;
+}
+.cart-item{
+  display:flex;gap:1rem;padding:1rem 0;
+  border-bottom:1px solid rgba(0,245,255,.08);
+}
+.cart-item img{width:60px;height:60px;object-fit:contain;background:#000;}
+.cart-item-info{flex:1;}
+.cart-item-name{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.05em;color:#fff;}
+.cart-item-price{font-family:'Share Tech Mono',monospace;font-size:.75rem;color:var(--cyan);margin-top:.25rem;}
+.cart-item-size{font-family:'Share Tech Mono',monospace;font-size:.58rem;color:var(--mu);margin-top:.2rem;}
+.cart-item-remove{
+  background:none;border:none;cursor:pointer;
+  color:var(--mu);font-size:.75rem;
+  font-family:'Share Tech Mono',monospace;
+  transition:color .2s;align-self:center;
+}
+.cart-item-remove:hover{color:var(--red);}
+.cart-footer{
+  padding:1.5rem;
+  border-top:1px solid rgba(0,245,255,.1);
+}
+.cart-total{
+  display:flex;justify-content:space-between;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:1.3rem;letter-spacing:.1em;
+  color:#fff;margin-bottom:1rem;
+}
+.cart-total span{color:var(--cyan);}
+.btn-checkout{
+  width:100%;
+  background:var(--cyan);color:var(--bg);
+  border:none;padding:.9rem;
+  font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.3em;
+  cursor:pointer;
+  clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));
+  transition:opacity .2s;
+}
+.btn-checkout:hover{opacity:.9;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .hero-gif{display:none;}
+  .hero-content{padding:0 2rem;}
+  .about-section{grid-template-columns:1fr;}
+  footer{grid-template-columns:1fr;}
+  .modal{grid-template-columns:1fr;}
+  .modal-img{min-height:280px;}
+  .product-grid{grid-template-columns:repeat(2,1fr);}
+}
+@media(max-width:500px){
+  .product-grid{grid-template-columns:1fr;}
+  .nav-links{display:none;}
+  .hero-title{font-size:3.5rem;}
+}
+</style>
+</head>
+<body>
+
+
+
+<!-- ═══════════════════════ CART DRAWER ═══════════════════════ -->
+<div class="cart-drawer" id="cartDrawer">
+  <div class="cart-drawer-header">
+    <h3>// CART</h3>
+    <button onclick="toggleCart()" style="background:none;border:none;cursor:pointer;color:var(--mu);font-family:'Share Tech Mono',monospace;font-size:.75rem;letter-spacing:.2em;">CLOSE ×</button>
+  </div>
+  <div class="cart-items" id="cartItems">
+    <div class="cart-empty" id="cartEmpty">
+      <span style="font-size:2rem;opacity:.2;">[ ]</span>
+      <span>CART IS EMPTY</span>
+    </div>
+  </div>
+  <div class="cart-footer" id="cartFooter" style="display:none;">
+    <div class="cart-total">TOTAL <span id="cartTotal">CHF 0</span></div>
+    <div style="display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem;">
+      <input id="order-name" type="text" placeholder="Your name" style="background:var(--bg3);border:1px solid rgba(0,245,255,.2);color:var(--txt);padding:.6rem .8rem;font-family:'Rajdhani',sans-serif;font-size:.9rem;outline:none;width:100%;">
+      <input id="order-email" type="email" placeholder="your@email.com" style="background:var(--bg3);border:1px solid rgba(0,245,255,.2);color:var(--txt);padding:.6rem .8rem;font-family:'Rajdhani',sans-serif;font-size:.9rem;outline:none;width:100%;">
+    </div>
+    <button class="btn-checkout" onclick="checkout()">SMASH BUY ALL</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════ NAV ═══════════════════════ -->
+<nav>
+  <div class="nav-logo" onclick="showPage('home')">
+    <img src="https://md-wealth.github.io/wear5su/i1.png" alt="5SU" style="height:44px;width:44px;object-fit:contain;display:block;filter:drop-shadow(0 0 8px rgba(0,245,255,.5));">
+    <div class="nav-brand">5SU<small>GOSU APPAREL // 고수</small></div>
+  </div>
+  <div class="nav-links">
+    <button class="active" data-goto="home">HOME</button>
+    <button data-goto="shop">SHOP</button>
+    <button data-goto="about">GOSU</button>
+    <button data-goto="custom">CUSTOM</button>
+  </div>
+  <div class="nav-right">
+    <button class="cart-btn" onclick="toggleCart()">
+      <span>CART</span>
+      <span class="cart-count" id="cartCount">0</span>
+    </button>
+  </div>
+</nav>
+
+<!-- ═══════════════════════ HOME ═══════════════════════ -->
+<div id="page-home" class="page active">
+  <div class="hero">
+    <div class="hero-grid"></div>
+    <div class="hero-glow"></div>
+    <div class="hero-purple"></div>
+    <div class="hero-gif">
+      <img src="https://md-wealth.github.io/wear5su/i2.gif" alt="5SU animated logo" style="width:100%;height:100%;object-fit:cover;mix-blend-mode:screen;filter:invert(1) sepia(1) saturate(8) hue-rotate(155deg) brightness(1.4);">
+    </div>
+    <div class="hero-content">
+      <div style="margin-bottom:1.5rem;">
+        <img src="https://md-wealth.github.io/wear5su/i3.png" alt="5SU" style="height:100px;width:100px;object-fit:contain;filter:drop-shadow(0 0 20px rgba(0,245,255,.6)) drop-shadow(0 0 40px rgba(0,245,255,.3));">
+      </div>
+      <div class="hero-tag">5SU GOSU APPAREL // SS2025 COLLECTION</div>
+      <h1 class="hero-title">WEAR YOUR<br><span class="accent">OBSESSION</span></h1>
+      <div style="display:flex;align-items:baseline;justify-content:center;gap:1.5rem;margin-bottom:1.5rem;">
+        <span style="font-family:'Noto Sans KR',sans-serif;font-size:clamp(1.8rem,4vw,3rem);font-weight:700;color:var(--cyan);letter-spacing:.1em;text-shadow:0 0 20px rgba(0,245,255,.4);">고수</span>
+        <span style="font-family:'Share Tech Mono',monospace;font-size:clamp(1.8rem,4vw,3rem);color:rgba(0,245,255,.3);">—</span>
+        <span style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.8rem,4vw,3rem);color:var(--cyan);letter-spacing:.4em;text-shadow:0 0 20px rgba(0,245,255,.4);">GOSU</span>
+      </div>
+      <p class="hero-desc">The trademark for those obsessed with Taekwon-Do, Gaming and Life. Unisex. Customizable. Built for those who dominate.</p>
+      <div class="hero-ctas">
+        <button class="btn-primary" onclick="showPage('shop')">ENTER SHOP</button>
+        <button class="btn-secondary" onclick="showPage('about')">WHAT IS GOSU?</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="gosu-bar">
+    <span class="gosu-ticker">
+      ⬡ TAEKWON-DO &nbsp;&nbsp;&nbsp; ⬡ ANIME &nbsp;&nbsp;&nbsp; ⬡ GAMING &nbsp;&nbsp;&nbsp; ⬡ UNISEX &nbsp;&nbsp;&nbsp; ⬡ CUSTOM DESIGNS &nbsp;&nbsp;&nbsp; ⬡ CHF 70 — 210 &nbsp;&nbsp;&nbsp; ⬡ 고수 &nbsp;&nbsp;&nbsp; ⬡ GOSU &nbsp;&nbsp;&nbsp; ⬡ OBSESSED &nbsp;&nbsp;&nbsp; ⬡ TAEKWON-DO &nbsp;&nbsp;&nbsp; ⬡ ANIME &nbsp;&nbsp;&nbsp; ⬡ GAMING &nbsp;&nbsp;&nbsp; ⬡ UNISEX &nbsp;&nbsp;&nbsp; ⬡ CUSTOM DESIGNS &nbsp;&nbsp;&nbsp; ⬡ CHF 70 — 210 &nbsp;&nbsp;&nbsp; ⬡ 고수 &nbsp;&nbsp;&nbsp; ⬡ GOSU &nbsp;&nbsp;&nbsp; ⬡ OBSESSED &nbsp;&nbsp;&nbsp;
+    </span>
+  </div>
+
+  <!-- Featured products preview -->
+  <div class="shop-section">
+    <div class="shop-header">
+      <div class="shop-title-block">
+        <div class="pre">// FEATURED DROPS</div>
+        <h2>NEW ARRIVALS</h2>
+      </div>
+      <button class="btn-secondary" onclick="showPage('shop')" style="align-self:flex-end;">VIEW ALL →</button>
+    </div>
+    <div class="product-grid" id="featuredGrid"></div>
+  </div>
+
+  <div class="custom-section">
+    <div class="label">// BESPOKE</div>
+    <h2>MIX ANY DESIGN<br>ON ANY PIECE</h2>
+    <p>All our designs can be mixed with other products. Tell us your vision — we build your gear.</p>
+    <button class="btn-primary" onclick="showPage('custom')">START CUSTOM ORDER</button>
+  </div>
+
+  <footer>
+    <div class="foot-brand">
+      <img src="https://md-wealth.github.io/wear5su/i4.png" alt="5SU" style="height:52px;width:52px;object-fit:contain;margin-bottom:.75rem;filter:drop-shadow(0 0 10px rgba(0,245,255,.4));">
+      <div class="name">5SU</div>
+      <p>Gosu Apparel. For those obsessed with Taekwon-Do, Anime and Gaming. Unisex. Swiss made.</p>
+    </div>
+    <div class="foot-col">
+      <h4>Navigate</h4>
+      <a href="#" onclick="showPage('home')">Home</a>
+      <a href="#" onclick="showPage('shop')">Shop</a>
+      <a href="#" onclick="showPage('about')">Gosu</a>
+      <a href="#" onclick="showPage('custom')">Custom</a>
+    </div>
+    <div class="foot-col">
+      <h4>Contact</h4>
+      <p>Unisex · Swiss Quality</p>
+      <p>Custom orders welcome</p>
+      <a href="https://monade-btc.wixsite.com/my-site/shop" target="_blank">Original Wix Shop</a>
+    </div>
+  </footer>
+  <div class="foot-bottom"><p>©2026 5SU — GOSU APPAREL</p><p>ALL DESIGNS CUSTOMIZABLE</p></div>
+</div>
+
+<!-- ═══════════════════════ SHOP ═══════════════════════ -->
+<div id="page-shop" class="page">
+  <div class="shop-section">
+    <div class="shop-header">
+      <div class="shop-title-block">
+        <div class="pre">// ALL PRODUCTS</div>
+        <h2>THE COLLECTION</h2>
+      </div>
+      <div class="filter-row">
+        <button class="filter-btn active" data-filter="all">ALL</button>
+        <button class="filter-btn" data-filter="tkd">TAEKWON-DO</button>
+        <button class="filter-btn" data-filter="anime">ANIME</button>
+        <button class="filter-btn" data-filter="gaming">GAMING</button>
+        <button class="filter-btn" data-filter="collab">COLLAB</button>
+      </div>
+    </div>
+    <div class="product-grid" id="shopGrid"></div>
+  </div>
+  <footer>
+    <div class="foot-brand"><div class="name">5SU</div><p>Gosu Apparel. Unisex. Customizable.</p></div>
+    <div class="foot-col"><h4>Navigate</h4><a href="#" onclick="showPage('home')">Home</a><a href="#" onclick="showPage('shop')">Shop</a><a href="#" onclick="showPage('about')">Gosu</a><a href="#" onclick="showPage('custom')">Custom</a></div>
+    <div class="foot-col"><h4>Info</h4><p>All designs can be mixed on any product. Just let us know.</p><a href="https://monade-btc.wixsite.com/my-site/shop" target="_blank">Original Shop</a></div>
+  </footer>
+  <div class="foot-bottom"><p>©2026 5SU — GOSU APPAREL</p><p>DESIGNS CAN BE MIXED</p></div>
+</div>
+
+<!-- ═══════════════════════ ABOUT ═══════════════════════ -->
+<div id="page-about" class="page">
+  <div class="about-section">
+    <div>
+      <div class="about-label">// WHAT IS GOSU?</div>
+      <h2 class="about-title">THE <span class="k">고수</span><br>PHILOSOPHY</h2>
+      <div class="about-text">
+        <p><strong style="color:#fff;">Gosu (고수)</strong> is a Korean term used to refer to a highly skilled person.</p>
+        <p>In computer gaming the term is used to refer to a person who dominated games like StarCraft or Counter-Strike — a player so skilled they operate on a different level.</p>
+        <p>Figuratively meaning <em style="color:var(--cyan);">pro</em> or <em style="color:var(--cyan);">highly skilled at something</em>, Gosu's pre-computing usage usually referred to Martial Arts or the game of Go.</p>
+        <p>The <strong style="color:#fff;">5SU trademark</strong> stands for expressing your obsession with Taekwon-Do, Gaming and Life. Wear what you are. Become Gosu.</p>
+      </div>
+    </div>
+    <div class="about-terminal">
+      <div class="terminal-line"><span class="t-key">IDENTITY</span><span class="t-val c">// 5SU APPAREL</span></div>
+      <div class="terminal-line"><span class="t-key">ORIGIN &nbsp;</span><span class="t-val">Korea / Switzerland</span></div>
+      <div class="terminal-line"><span class="t-key">MEANING </span><span class="t-val c">고수 — Highly Skilled</span></div>
+      <div class="terminal-line"><span class="t-key">DOMAINS </span><span class="t-val p">TKD · Anime · Gaming</span></div>
+      <div class="terminal-line"><span class="t-key">FIT &nbsp; &nbsp; </span><span class="t-val">Unisex</span></div>
+      <div class="terminal-line"><span class="t-key">CUSTOM &nbsp;</span><span class="t-val c">Any design on any piece</span></div>
+      <div class="terminal-line"><span class="t-key">PRICE &nbsp; </span><span class="t-val r">CHF 70 — 210</span></div>
+      <div class="terminal-line"><span class="t-key">STATUS &nbsp;</span><span class="t-val c">IN STOCK<span class="t-cursor"></span></span></div>
+    </div>
+  </div>
+
+  <div class="custom-section">
+    <div class="label">// OBSESSION</div>
+    <h2>ONE DOES NOT<br>SIMPLY STOP</h2>
+    <p>Taekwon-Do. Go. Gaming. Anime. When you're obsessed, you wear it. 5SU is for those who live the craft.</p>
+    <button class="btn-primary" onclick="showPage('shop')">SHOP THE COLLECTION</button>
+  </div>
+
+  <footer>
+    <div class="foot-brand"><div class="name">5SU</div><p>Gosu Apparel. Swiss Quality.</p></div>
+    <div class="foot-col"><h4>Navigate</h4><a href="#" onclick="showPage('home')">Home</a><a href="#" onclick="showPage('shop')">Shop</a><a href="#" onclick="showPage('about')">Gosu</a><a href="#" onclick="showPage('custom')">Custom</a></div>
+    <div class="foot-col"><h4>The Word</h4><p>고수 · 高手 · Gosu</p><p>Highly skilled. Obsessed. Dominant.</p></div>
+  </footer>
+  <div class="foot-bottom"><p>©2026 5SU — GOSU APPAREL</p></div>
+</div>
+
+<!-- ═══════════════════════ CUSTOM ═══════════════════════ -->
+<div id="page-custom" class="page">
+  <div style="max-width:800px;margin:0 auto;padding:5rem 2rem;">
+    <div class="about-label">// CUSTOM ORDER</div>
+    <h2 class="about-title">BUILD YOUR<br><span style="color:var(--cyan);">GEAR</span></h2>
+    <p style="color:var(--txt);opacity:.7;font-size:1rem;line-height:1.8;margin-bottom:3rem;">All our designs can be mixed with other products. Want the BAKA! print on a College Jacket? The TKD design on a tank top? Just tell us — we make it happen.</p>
+
+    <div class="about-terminal" style="margin-bottom:2rem;">
+      <div class="terminal-line"><span class="t-key">STEP 1</span><span class="t-val c">Choose your base piece (T-Shirt / Jumper / Jacket / Tank)</span></div>
+      <div class="terminal-line"><span class="t-key">STEP 2</span><span class="t-val">Pick a design from the collection</span></div>
+      <div class="terminal-line"><span class="t-key">STEP 3</span><span class="t-val p">Describe any modifications or color preferences</span></div>
+      <div class="terminal-line"><span class="t-key">STEP 4</span><span class="t-val c">We quote you — you confirm — we build<span class="t-cursor"></span></span></div>
+    </div>
+
+    <form onsubmit="submitCustom(event)" style="display:flex;flex-direction:column;gap:1.2rem;">
+      <div>
+        <label style="font-family:'Share Tech Mono',monospace;font-size:.6rem;letter-spacing:.3em;color:var(--mu);display:block;margin-bottom:.4rem;">YOUR NAME</label>
+        <input id="c-name" type="text" placeholder="Gosu Name" required style="width:100%;background:var(--bg3);border:1px solid rgba(0,245,255,.25);color:var(--txt);padding:.75rem 1rem;font-family:'Rajdhani',sans-serif;font-size:.95rem;outline:none;">
+      </div>
+      <div>
+        <label style="font-family:'Share Tech Mono',monospace;font-size:.6rem;letter-spacing:.3em;color:var(--mu);display:block;margin-bottom:.4rem;">EMAIL</label>
+        <input id="c-email" type="email" placeholder="your@domain.com" required style="width:100%;background:var(--bg3);border:1px solid rgba(0,245,255,.25);color:var(--txt);padding:.75rem 1rem;font-family:'Rajdhani',sans-serif;font-size:.95rem;outline:none;">
+      </div>
+      <div>
+        <label style="font-family:'Share Tech Mono',monospace;font-size:.6rem;letter-spacing:.3em;color:var(--mu);display:block;margin-bottom:.4rem;">BASE PIECE</label>
+        <select id="c-piece" style="width:100%;background:var(--bg3);border:1px solid rgba(0,245,255,.25);color:var(--txt);padding:.75rem 1rem;font-family:'Rajdhani',sans-serif;font-size:.95rem;outline:none;appearance:none;">
+          <option>T-Shirt</option>
+          <option>Jumper / Hoodie</option>
+          <option>College Jacket</option>
+          <option>Tank Top</option>
+          <option>Other — describe below</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-family:'Share Tech Mono',monospace;font-size:.6rem;letter-spacing:.3em;color:var(--mu);display:block;margin-bottom:.4rem;">DESIGN + DETAILS</label>
+        <textarea id="c-msg" rows="5" placeholder="Which design? Any color preferences? Special requests?" required style="width:100%;background:var(--bg3);border:1px solid rgba(0,245,255,.25);color:var(--txt);padding:.75rem 1rem;font-family:'Rajdhani',sans-serif;font-size:.95rem;outline:none;resize:vertical;"></textarea>
+      </div>
+      <button type="submit" class="btn-primary" style="align-self:flex-start;font-size:1rem;padding:.8rem 2.5rem;">SEND REQUEST →</button>
+    </form>
+  </div>
+  <footer>
+    <div class="foot-brand"><div class="name">5SU</div><p>Gosu Apparel. All designs customizable.</p></div>
+    <div class="foot-col"><h4>Navigate</h4><a href="#" onclick="showPage('home')">Home</a><a href="#" onclick="showPage('shop')">Shop</a><a href="#" onclick="showPage('about')">Gosu</a><a href="#" onclick="showPage('custom')">Custom</a></div>
+    <div class="foot-col"><h4>Process</h4><p>Pick piece + design → We quote → You confirm → We build</p></div>
+  </footer>
+  <div class="foot-bottom"><p>©2026 5SU — GOSU APPAREL</p></div>
+</div>
+
+<!-- ═══════════════════════ PRODUCT MODAL ═══════════════════════ -->
+<div class="modal-backdrop" id="modalBackdrop" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <button class="modal-close" onclick="closeModal()">[ CLOSE × ]</button>
+    <div class="modal-img" style="flex-direction:column;gap:0;padding:0;">
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:1.5rem;min-height:320px;">
+        <img id="modal-img" src="" alt="" style="max-width:100%;max-height:340px;object-fit:contain;">
+      </div>
+      <div id="modal-thumbs" style="display:flex;gap:4px;padding:.75rem;background:var(--bg3);overflow-x:auto;flex-wrap:wrap;justify-content:center;"></div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-tag" id="modal-tag"></div>
+      <div class="modal-title" id="modal-title"></div>
+      <div class="modal-price"><small>CHF</small><span id="modal-price"></span></div>
+      <div class="modal-desc" id="modal-desc"></div>
+      <div class="size-select">
+        <label>SELECT SIZE</label>
+        <select id="modal-size">
+          <option>XS</option>
+          <option selected>S</option>
+          <option>M</option>
+          <option>L</option>
+          <option>XL</option>
+          <option>XXL</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-smash" id="modal-buy-btn">SMASH BUY!</button>
+      </div>
+      <div class="modal-note">
+        // CUSTOM ORDER? All designs can be mixed on any product.<br>
+        // Contact us for special requests.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+// PRODUCT DATA
+// ════════════════════════════════════════
+const W = 'https://static.wixstatic.com/media/';
+const IMG = id => id.startsWith('http') ? id : W + id + '/v1/fill/w_600,h_600,al_c,q_90,enc_avif,quality_auto/' + id;
+
+const PRODUCTS = [
+  { id:'tkd-jogger',  name:'TKD Jogger Navy',         price:150, cat:'tkd',    badge:'TKD',    imgs:['https://md-wealth.github.io/wear5su/i34.png','https://md-wealth.github.io/wear5su/i35.png','https://md-wealth.github.io/wear5su/i36.png','https://md-wealth.github.io/wear5su/i37.png','https://md-wealth.github.io/wear5su/i38.png'], desc:'Navy jogger pants with Taekwondo Hangeul print on the leg and 5SU logo on the back. Heavyweight comfort. Unisex.' },
+  { id:'tkd-main',  name:'Taekwon-Do',             price:150, cat:'tkd',    badge:'TKD',    imgs:['7e456c_0efdb7377cf6435ea7a41a828788e561~mv2.png','7e456c_ef13459c47bb42acb98424629c85567d~mv2.png'], desc:'Premium TKD graphic piece. Unisex fit. The signature drop of the 5SU collection.' },
+  { id:'tkd-lumi',  name:'Taekwon-Do Luminescent', price:70,  cat:'tkd',    badge:'TKD',    imgs:['7e456c_2bdc48e1355f413bb0e5e21669bcffdd~mv2.png','7e456c_79c42cc93319480baaee7c7cfee2a3d5~mv2.png','7e456c_a0cff807aa524c03a04e064cecf9a2de~mv2.png','7e456c_8cd909a0cf7f4a398b11f2f9f578640f~mv2.png'], desc:'Luminescent print. Glows in the dark. For those who train at night.' },
+  { id:'bitcoin',   name:'Bitcoin',                price:210, cat:'collab', badge:'COLLAB', imgs:['7e456c_fc931f18a9514e5dbcfef3507addf9b4~mv2.png'], desc:'The premium BTC collab. Highest price point. Heavyweight quality.' },
+  { id:'obsessed',  name:'#obsessed Jumper',       price:200, cat:'tkd',    badge:'TKD',    imgs:['7e456c_eec0b316947b48c0a325622e3b75cd82~mv2.png','7e456c_472d6d41f2484cdb896ca36514ffa698~mv2.png','7e456c_33c9e4d86bc24ec3a10fefe4349d192c~mv2.png','7e456c_37ccc8ed18bf48b097c011f683271ace~mv2.png','7e456c_2e69aa21887f4f11a8bacc853468c251~mv2.png','7e456c_e8937b60b37144d2aeec6376391a4d1b~mv2.png','7e456c_db3c99b6bf004bd1ba58405c91c264ff~mv2.png','7e456c_5fb67a2de9c54b76816c5968ba2f4c42~mv2.png'], desc:'Are you obsessed? This jumper says it before you do.' },
+  { id:'goboard',   name:'Go Board T-Shirt',       price:85,  cat:'gaming', badge:'GAMING', imgs:['7e456c_bc14d03395204c38a92532b20d10ec1b~mv2.png','7e456c_fef6d0823c9144a58991c052e61df651~mv2.png','7e456c_451c2139cbbe458e99948836e9846d15~mv2.png','7e456c_fb5ab6bfc1864693940752059905a8f9~mv2.png','7e456c_9f0bf1c030d44d668669c0d1405f0e61~mv2.png'], desc:'The ancient game of Go. For the strategist.' },
+  { id:'roshi',     name:'Rōshi T-Shirt',          price:85,  cat:'anime',  badge:'ANIME',  imgs:['7e456c_6600333150f1447a9184375b6e4c90cb~mv2.png'], desc:'Rōshi — the master. Anime meets streetwear.' },
+  { id:'kami',      name:'Kami No Itte Jumper',    price:180, cat:'gaming', badge:'GAMING', imgs:['7e456c_7f01d97f56d44818a7a9428372b2198c~mv2.png','7e456c_4188d0482eac4a609ef0762f3109c69d~mv2.png','7e456c_43e142157eb04215980d330a7b9a6839~mv2.png','7e456c_fdd54c77578d4360a82c02132a9c9970~mv2.png'], desc:'Kami No Itte — the divine move. From the anime Hikaru no Go.' },
+  { id:'dorje',     name:'Dorje T-Shirt',          price:85,  cat:'collab', badge:'COLLAB', imgs:['7e456c_dfc2c44cd87a4ac294989e2326a2dbfb~mv2.png','7e456c_992c5510410e4c04a0fced2c818d035d~mv2.png','7e456c_11228e54896a43c0a83f41ccad9e5296~mv2.png','7e456c_c06b90b36fad47db8f44eaf4c6619f29~mv2.png'], desc:'Dorje — the thunderbolt. Ancient symbol of indestructible power.' },
+  { id:'kimchi',    name:'Kimchi T-Shirt',         price:85,  cat:'anime',  badge:'ANIME',  imgs:['7e456c_6600333150f1447a9184375b6e4c90cb~mv2.png','7e456c_ce614d04136b4dd4a36bab92290c41ca~mv2.png','7e456c_09fc6855091d4a278e2a524a33e68484~mv2.png','7e456c_dc6030a168314e4cb365480b082d3f00~mv2.png'], desc:'Korean culture meets streetwear. For the authentic ones.' },
+  { id:'youth2',    name:'Youth Jumper #2',        price:150, cat:'tkd',    badge:'TKD',    imgs:['7e456c_dd48722dde5a4f449fd19bae2dcacbb5~mv2.png','7e456c_13d080e0972a4d1db7d907fe6320fbcd~mv2.png','7e456c_01cca95482f04b2687434382b5dadf1f~mv2.png','7e456c_4852d07f56e2412b9d462a357bed4c3d~mv2.png'], desc:'The second drop of the Youth line. For the next generation.' },
+  { id:'youth',     name:'Youth Jumper',           price:150, cat:'tkd',    badge:'TKD',    imgs:['7e456c_610b2f745d604862a0aef5560ca4f72b~mv2.png','7e456c_c40cc2e3d76b42bb8ebbe84fea6f1f34~mv2.png','7e456c_7a1e06dc3ed54014a961228d10c6f70c~mv2.png','7e456c_9e07c008ef5c4a7ebb2df66ce0220c2b~mv2.png'], desc:'Designed for youth TKD practitioners. Lightweight and bold.' },
+  { id:'girl',      name:'Girl Jumper',            price:150, cat:'tkd',    badge:'TKD',    imgs:['7e456c_afc6cb9e002d499abe03af840406e127~mv2.png','7e456c_af26c703ee2d4d4b875baee30573173a~mv2.png','7e456c_1deadd0e93ee4063a7be62f4aa78b13a~mv2.png','7e456c_77475c9f18d7482f9f650f89e24def45~mv2.png'], desc:'Feminine cut. Full TKD energy.' },
+  { id:'baka',      name:'BAKA! Jumper',           price:150, cat:'anime',  badge:'ANIME',  imgs:['7e456c_6b039f22031b4fd4bdaa6bcd880e4fe3~mv2.png'], desc:'BAKA! — anime culture at its peak. For those who know, they know.' },
+  { id:'tkd-jump',  name:'Taekwon-Do Jumper',      price:165, cat:'tkd',    badge:'TKD',    imgs:['7e456c_0d73c87a806a404085f92438e038815e~mv2.png','7e456c_d1623ea381cf434199f6a01acab215e8~mv2.png','7e456c_3c4b9eec62a34418810336b287e62403~mv2.png','7e456c_3f894667fda048d1acd7cc7d40083428~mv2.png'], desc:'High Kick Yop Chagi and Taekwon-Do lettering in Hangeul. The flagship jumper.' },
+  { id:'bagua',     name:'Bagua College Jacket',   price:180, cat:'collab', badge:'COLLAB', imgs:['7e456c_dab75daacc4a48709c526978ab59db74~mv2.png','7e456c_5bcc9641118c43999b38718b1f68f623~mv2.png','7e456c_fd1279180f6747599e9f295a2e5c9eea~mv2.png','7e456c_ccd45f410b6143e8bbd2747277c4294c~mv2.png'], desc:'College jacket meets ancient Bagua symbol. The premium collab piece.' },
+  { id:'owls',      name:'Owls Playing Go',        price:85,  cat:'gaming', badge:'GAMING', imgs:['7e456c_9d37c031167745fe907bf4c39dd55efe~mv2.png','7e456c_95e556b560b6405c9c993160be4d4649~mv2.png','7e456c_5dded6a9668b4262bd7e7fb57ca7c3ef~mv2.png','7e456c_8f962822208c4651bcdb26d1306a03f9~mv2.png'], desc:'Owls playing Go on a tank top. The nerdy flex.' },
+  { id:'women-tkd', name:'TKD Jumper Women',       price:150, cat:'tkd',    badge:'TKD',    imgs:['7e456c_3e00b5b2eeb64759b3e21c9ac151630e~mv2.png','7e456c_c4351785a2624e6e904db69afcdfad02~mv2.png','7e456c_daaee3309d6643c8849e1a34e82a5d6b~mv2.png','7e456c_c4b72fd28ea24f8c978178ed307714f7~mv2.png'], desc:'Cut for women. Full TKD identity.' },
+  { id:'atoms',     name:'Atoms and Go Sweater',   price:105, cat:'gaming', badge:'GAMING', imgs:['7e456c_9d3d13778fd14ad4b566a3560a3fd64f~mv2.png','7e456c_586ae0df3d1547009205ef772c53ed8c~mv2.png','7e456c_2fe5e73179254ca983e357396087b1a9~mv2.png','7e456c_d9c22a63381c4046b947aa00c6b8d3dd~mv2.png'], desc:'Atoms and Go — science meets strategy. The thinker\'s sweater.' },
+
+  { id:'sweat-shorts-black', name:'5SU Sweat Shorts',         price:100,  cat:'tkd',    badge:'TKD',
+    imgs:['https://md-wealth.github.io/wear5su/i5.jpg','https://md-wealth.github.io/wear5su/i6.jpg','https://md-wealth.github.io/wear5su/i7.jpg','https://md-wealth.github.io/wear5su/i8.jpg'],
+    desc:'Black sweat shorts with TKD heartbeat kick and 5SU logo. Unisex.' },
+  { id:'shorts-red-women',   name:'TKD Shorts',               price:100,  cat:'tkd',    badge:'TKD',
+    imgs:['https://md-wealth.github.io/wear5su/i9.jpg','https://md-wealth.github.io/wear5su/i10.jpg','https://md-wealth.github.io/wear5su/i11.jpg','https://md-wealth.github.io/wear5su/i12.jpg'],
+    desc:'태권도 in white on red. Feminine cut. 5SU logo. Made for the mat and the streets.' },
+  { id:'swim-shorts-navy',   name:'TKD Swim Shorts',           price:90,  cat:'tkd',    badge:'TKD',
+    imgs:['https://md-wealth.github.io/wear5su/i13.jpg','https://md-wealth.github.io/wear5su/i14.jpg','https://md-wealth.github.io/wear5su/i15.jpg','https://md-wealth.github.io/wear5su/i16.jpg'],
+    desc:'태권도 swim shorts. Navy with zip pocket. For the beach warrior.' },
+  { id:'tank-white',         name:'5SU Tank Top White',        price:120,  cat:'tkd',    badge:'TKD',
+    imgs:['https://md-wealth.github.io/wear5su/i17.jpg','https://md-wealth.github.io/wear5su/i18.jpg','https://md-wealth.github.io/wear5su/i19.jpg','https://md-wealth.github.io/wear5su/i20.jpg'],
+    desc:'5SU logo front. 태권도 back. White tank top. Train in it.' },
+  { id:'leggings-black',     name:'5SU Leggings',              price:80,  cat:'tkd',    badge:'TKD',
+    imgs:['https://md-wealth.github.io/wear5su/i21.jpg','https://md-wealth.github.io/wear5su/i22.jpg','https://md-wealth.github.io/wear5su/i23.jpg'],
+    desc:"Black women's leggings with 5SU logo on the side. High waist." },
+  { id:'planb-navy',         name:'Plan B T-Shirt Kids Navy',  price:70,  cat:'collab', badge:'COLLAB',
+    imgs:['https://md-wealth.github.io/wear5su/i24.jpg','https://md-wealth.github.io/wear5su/i25.jpg','https://md-wealth.github.io/wear5su/i26.jpg','https://md-wealth.github.io/wear5su/i27.jpg'],
+    desc:'PLAN B front. I Told You So astronaut on the moon back. Navy kids tee.' },
+  { id:'planb-white',        name:'Plan B T-Shirt Kids White', price:70,  cat:'collab', badge:'COLLAB',
+    imgs:['https://md-wealth.github.io/wear5su/i28.jpg','https://md-wealth.github.io/wear5su/i29.jpg','https://md-wealth.github.io/wear5su/i30.jpg'],
+    desc:'PLAN B front. Bitcoin miner illustration back. White kids tee.' },
+  { id:'baby-body',          name:'Baby Body Future Is Mine',  price:70,  cat:'collab', badge:'COLLAB',
+    imgs:['https://md-wealth.github.io/wear5su/i31.jpg','https://md-wealth.github.io/wear5su/i32.jpg','https://md-wealth.github.io/wear5su/i33.jpg'],
+    desc:'The Future Is Mine. Unicorn dreaming of Bitcoin. For the next generation HODLer.' },
+];
+PRODUCTS.forEach(p => p.img = p.imgs[0]);
+
+const BADGE_CLASS = { tkd:'badge-tkd', anime:'badge-anime', gaming:'badge-gaming', collab:'badge-collab' };
+
+// ════════════════════════════════════════
+// CART
+// ════════════════════════════════════════
+let cart = [];
+
+function toggleCart(){ document.getElementById('cartDrawer').classList.toggle('open'); }
+
+function addToCart(product, size){
+  cart.push({...product, size});
+  renderCart();
+  document.getElementById('cartDrawer').classList.add('open');
+}
+
+function removeFromCart(i){ cart.splice(i,1); renderCart(); }
+
+function renderCart(){
+  const count = cart.length;
+  document.getElementById('cartCount').textContent = count;
+  const itemsEl = document.getElementById('cartItems');
+  const emptyEl = document.getElementById('cartEmpty');
+  const footerEl = document.getElementById('cartFooter');
+
+  if(count === 0){
+    emptyEl.style.display = 'flex';
+    footerEl.style.display = 'none';
+    itemsEl.innerHTML = '';
+    itemsEl.appendChild(emptyEl);
+    return;
+  }
+
+  emptyEl.style.display = 'none';
+  footerEl.style.display = 'block';
+
+  let html = '';
+  cart.forEach((item, i) => {
+    html += `<div class="cart-item">
+      <img src="${IMG(item.img)}" alt="${item.name}" onerror="this.style.opacity='.3'">
+      <div class="cart-item-info">
+        <div class="cart-item-name">${item.name}</div>
+        <div class="cart-item-price">CHF ${item.price}</div>
+        <div class="cart-item-size">SIZE: ${item.size}</div>
+      </div>
+      <button class="cart-item-remove" onclick="removeFromCart(${i})">[ REMOVE ]</button>
+    </div>`;
+  });
+  itemsEl.innerHTML = html;
+
+  const total = cart.reduce((s,i) => s+i.price, 0);
+  document.getElementById('cartTotal').textContent = 'CHF ' + total;
+}
+
+async function checkout(){
+  if(cart.length === 0) return;
+  const nameVal = document.getElementById('order-name').value.trim();
+  const emailVal = document.getElementById('order-email').value.trim();
+  if(!emailVal){ alert('Please enter your email address.'); return; }
+
+  const btn = document.querySelector('.btn-checkout');
+  btn.textContent = 'PROCESSING...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('/.netlify/functions/create-checkout', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        items: cart,
+        customerEmail: emailVal,
+        customerName: nameVal,
+      })
+    });
+    const data = await res.json();
+    if(data.url){
+      window.location.href = data.url; // Redirect to Stripe
+    } else {
+      throw new Error(data.error || 'Unknown error');
+    }
+  } catch(err) {
+    alert('Payment error: ' + err.message + '\nPlease email info@5su.ch directly.');
+    btn.textContent = 'SMASH BUY ALL';
+    btn.disabled = false;
+  }
+}
+
+// ════════════════════════════════════════
+// MODAL
+// ════════════════════════════════════════
+let currentProduct = null;
+
+function openModal(product){
+  currentProduct = product;
+  const mainImg = document.getElementById('modal-img');
+  mainImg.src = IMG(product.imgs[0]);
+  // Render thumbnails
+  const thumbsEl = document.getElementById('modal-thumbs');
+  if(product.imgs.length > 1){
+    thumbsEl.style.display = 'flex';
+    thumbsEl.innerHTML = product.imgs.map((img,i) =>
+      `<img src="${IMG(img)}" onclick="document.getElementById('modal-img').src='${IMG(img)}';document.querySelectorAll('#modal-thumbs img').forEach((t,j)=>{t.style.border=j===`+"`${i}`"+`?'1px solid var(--cyan)':'1px solid rgba(0,245,255,.15)';})"
+        style="width:56px;height:56px;object-fit:contain;background:#000;cursor:pointer;border:1px solid ${i===0?'var(--cyan)':'rgba(0,245,255,.15)'};flex-shrink:0;padding:3px;transition:border-color .15s;"
+        loading="lazy">`
+    ).join('');
+  } else {
+    thumbsEl.style.display = 'none';
+    thumbsEl.innerHTML = '';
+  }
+  document.getElementById('modal-tag').textContent   = '// ' + product.badge + ' / 5SU COLLECTION';
+  document.getElementById('modal-title').textContent = product.name;
+  document.getElementById('modal-price').textContent = product.price;
+  document.getElementById('modal-desc').textContent  = product.desc;
+  document.getElementById('modal-buy-btn').onclick = () => {
+    const size = document.getElementById('modal-size').value;
+    addToCart(product, size);
+    closeModal();
+  };
+  // Dynamic sizes based on product
+  const sizeEl = document.getElementById('modal-size');
+  const kidsIds = ['planb-navy','planb-white'];
+  const babyIds = ['baby-body'];
+  let sizes;
+  if(babyIds.includes(product.id)){
+    sizes = ['50/56','62/68','74/80','86/92'];
+  } else if(kidsIds.includes(product.id)){
+    sizes = ['98/104','110/116','122/128','134/140','146/152'];
+  } else {
+    sizes = ['XS','S','M','L','XL','XXL'];
+  }
+  sizeEl.innerHTML = sizes.map((s,i) => `<option${i===1?' selected':''}>${s}</option>`).join('');
+  document.getElementById('modalBackdrop').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(e){
+  if(e && e.target !== document.getElementById('modalBackdrop')) return;
+  document.getElementById('modalBackdrop').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ════════════════════════════════════════
+// RENDER PRODUCTS
+// ════════════════════════════════════════
+function productCard(p){
+  return `<div class="product-card" onclick="openModal(PRODUCTS.find(x=>x.id==='${p.id}'))">
+    <div class="product-img">
+      <img src="${IMG(p.imgs[0])}" alt="${p.name}" loading="lazy">
+      <div class="product-badge ${BADGE_CLASS[p.cat]}">${p.badge}</div>
+      <div class="product-overlay"><button class="quick-view">QUICK VIEW</button></div>
+    </div>
+    <div class="product-info">
+      <div class="product-name">${p.name}</div>
+      <div class="product-price">${p.price}</div>
+    </div>
+    <div class="product-footer">
+      <span class="tag">UNISEX</span>
+      <button class="add-btn" onclick="event.stopPropagation();openModal(PRODUCTS.find(x=>x.id==='${p.id}'))">ADD →</button>
+    </div>
+  </div>`;
+}
+
+// Featured (first 6)
+document.getElementById('featuredGrid').innerHTML = PRODUCTS.slice(0,6).map(productCard).join('');
+
+// All products
+document.getElementById('shopGrid').innerHTML = PRODUCTS.map(productCard).join('');
+
+// ════════════════════════════════════════
+// FILTER
+// ════════════════════════════════════════
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', function(){
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    const f = this.dataset.filter;
+    const filtered = f === 'all' ? PRODUCTS : PRODUCTS.filter(p => p.cat === f);
+    document.getElementById('shopGrid').innerHTML = filtered.map(productCard).join('');
+  });
+});
+
+// ════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-links button').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  const btn = document.querySelector(`[data-goto="${id}"]`);
+  if(btn) btn.classList.add('active');
+  window.scrollTo(0,0);
+  document.getElementById('cartDrawer').classList.remove('open');
+}
+
+document.addEventListener('click', function(e){
+  let el = e.target;
+  while(el && el !== document.body){
+    const g = el.getAttribute('data-goto');
+    if(g){ e.preventDefault(); showPage(g); return; }
+    el = el.parentElement;
+  }
+});
+
+// Close cart on outside click
+document.addEventListener('click', function(e){
+  const drawer = document.getElementById('cartDrawer');
+  const cartBtn = document.querySelector('.cart-btn');
+  if(drawer.classList.contains('open') && !drawer.contains(e.target) && !cartBtn.contains(e.target)){
+    drawer.classList.remove('open');
+  }
+});
+
+// ════════════════════════════════════════
+// CUSTOM FORM
+// ════════════════════════════════════════
+function submitCustom(e){
+  e.preventDefault();
+  const name = document.getElementById('c-name').value;
+  const email = document.getElementById('c-email').value;
+  const piece = document.getElementById('c-piece').value;
+  const msg = document.getElementById('c-msg').value;
+  const subject = '5SU Custom Order // ' + name;
+  const body = `Name: ${name}%0AEmail: ${email}%0APiece: ${piece}%0A%0ADetails:%0A${encodeURIComponent(msg)}`;
+  window.open(`mailto:info@5su.ch?subject=${encodeURIComponent(subject)}&body=${body}`);
+}
+</script>
+
+<script>
+// Show cancelled message if redirected back from Stripe
+if(new URLSearchParams(window.location.search).get('cancelled')==='true'){
+  const d = document.createElement('div');
+  d.style.cssText='position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:rgba(255,0,64,.15);border:1px solid rgba(255,0,64,.4);color:#ff6080;padding:.75rem 1.5rem;font-family:Share Tech Mono,monospace;font-size:.7rem;letter-spacing:.2em;z-index:999;';
+  d.textContent='// PAYMENT CANCELLED — your cart is still saved.';
+  document.body.appendChild(d);
+  setTimeout(()=>d.remove(), 5000);
+  history.replaceState({},'','/');
+}
+</script>
+</body>
+</html>
